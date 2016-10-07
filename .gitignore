@@ -1,0 +1,7 @@
+.env
+.py[ocd]
+__pycache__
+build
+htmlcov
+.coverage
+.ropeproject
