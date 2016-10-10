@@ -13,6 +13,13 @@ Documentation is hosted on `Read the Docs`_.
 
 Source code can be found on `GitHub`_.
 
+Warning
+-------
+
+This project is still very much in development, stuff might work, or not.
+API's might change, or even be removed. So be careful. This message will be
+removed once a stable version is released.
+
 Example
 -------
 
