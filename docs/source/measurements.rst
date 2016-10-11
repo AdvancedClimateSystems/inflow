@@ -70,11 +70,11 @@ However, this is a bit verbose. That's why you can also do this:
 
 .. code:: python
 
-    from inflow import Client, Measurement
+    from inflow import Client
 
     client = Client('http://username:pass@localhost:8086/databasename')
 
-    temperature = Measurement(
+    temperature = dict(
         name='temperature',
         tags={
             'location': 'groningen',
