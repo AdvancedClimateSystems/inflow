@@ -1,6 +1,9 @@
 .. image:: https://travis-ci.org/AdvancedClimateSystems/inflow.svg?branch=develop
     :target: https://travis-ci.org/AdvancedClimateSystems/inflow
 
+.. image:: https://coveralls.io/repos/github/AdvancedClimateSystems/inflow/badge.svg?branch=develop
+    :target: https://coveralls.io/github/AdvancedClimateSystems/inflow?branch=develop
+
 Inflow
 ======
 

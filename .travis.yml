@@ -9,7 +9,11 @@ python:
 
 install:
     - pip install -r requirements-dev.txt
+    - pip install coveralls
 
 script:
     - flake8
     - make test
+
+after_success:
+    - coveralls
