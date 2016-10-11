@@ -10,7 +10,7 @@ class WriteMixin:
         first = args[0]
 
         if isinstance(first, Measurement):
-            self.write_func(first)
+            return self.write_func(first)
 
         elif type(first) is dict:
             measurements = []
@@ -19,13 +19,13 @@ class WriteMixin:
                 merge.update(measurement)
 
                 measurements.append(Measurement(**merge))
-            self.write_func(measurements)
+            return self.write_func(measurements)
 
         elif type(first) is list:
-            self.write_func(first)
+            return self.write_func(first)
 
         elif isinstance(first, six.string_types):
-            self.write_func(Measurement(
+            return self.write_func(Measurement(
                 name=first,
                 **kwargs
             ))

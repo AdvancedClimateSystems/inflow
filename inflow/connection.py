@@ -11,7 +11,7 @@ __all__ = ['Connection']
 class Connection:
     """ Represents a connection to an InfluxDB instance. """
 
-    def __init__(self, uri):
+    def __init__(self, uri, precision='s'):
         parsed = urlparse(uri)
 
         if parsed.hostname is None or\
@@ -40,18 +40,21 @@ class Connection:
 
         self.db = parsed.path[1:]
 
+        self.precision = precision
+
     @property
     def write_url(self):
-        return '{}/write?db={}'.format(
+        return '{}/write?precision={}&db={}'.format(
             self.uri,
+            self.precision,
             self.db
         )
 
     def write(self, measurement):
         """ Write a single measurement to the InfluxDB API. """
         if type(measurement) is list:
-            data = '\n'.join([m.to_line() for m in measurement])
+            data = '\n'.join([m.to_line(self.precision) for m in measurement])
         else:
-            data = measurement.to_line()
+            data = measurement.to_line(self.precision)
 
-        post(self.write_url, auth=self.auth, data=data)
+        return post(self.write_url, auth=self.auth, data=data)

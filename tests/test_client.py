@@ -1,4 +1,5 @@
 import pytest
+from datetime import datetime
 from inflow import Client, Measurement
 
 try:
@@ -58,7 +59,7 @@ class TestWrite:
     def test_simple_measurement(self, client, post):
         client.write('temperature', value=21.3, timestamp=1476107241)
         post.assert_called_with(
-            'https://localhost:8086/write?db=testdb',
+            'https://localhost:8086/write?precision=s&db=testdb',
             auth=('user', 'pass'),
             data='temperature value=21.3 1476107241'
         )
@@ -68,7 +69,7 @@ class TestWrite:
                      timestamp=1476107241)
 
         post.assert_called_with(
-            'https://localhost:8086/write?db=testdb',
+            'https://localhost:8086/write?precision=s&db=testdb',
             auth=('user', 'pass'),
             data='temperature,a=tag,b=tag value=21.3 1476107241'
         )
@@ -78,7 +79,7 @@ class TestWrite:
                      timestamp=1476107241)
 
         post.assert_called_with(
-            'https://localhost:8086/write?db=testdb',
+            'https://localhost:8086/write?precision=s&db=testdb',
             auth=('user', 'pass'),
             data='temperature,a\\,\\=b\\ =a\\,\\=b\\  value=21.3 1476107241'
         )
@@ -87,7 +88,7 @@ class TestWrite:
         client.write('temp er,ature', value=21.3, timestamp=1476107241)
 
         post.assert_called_with(
-            'https://localhost:8086/write?db=testdb',
+            'https://localhost:8086/write?precision=s&db=testdb',
             auth=('user', 'pass'),
             data='temp\\ er\\,ature value=21.3 1476107241'
         )
@@ -97,7 +98,7 @@ class TestWrite:
                      timestamp=1476107241)
 
         post.assert_called_with(
-            'https://localhost:8086/write?db=testdb',
+            'https://localhost:8086/write?precision=s&db=testdb',
             auth=('user', 'pass'),
             data='temperature value="well, a pretty nice \\"temperature\\"" 1476107241'
         )
@@ -110,7 +111,28 @@ class TestWrite:
         ))
 
         post.assert_called_with(
-            'https://localhost:8086/write?db=testdb',
+            'https://localhost:8086/write?precision=s&db=testdb',
+            auth=('user', 'pass'),
+            data='temperature value=21.3 1476107241'
+        )
+
+    def test_measurement_no_timestamp(self):
+        measurement = Measurement(
+            'temperature',
+            value=21.3
+        )
+
+        assert measurement.timestamp
+
+    def test_measurement_datetime(self, client, post):
+        client.write(Measurement(
+            'temperature',
+            value=21.3,
+            timestamp=datetime.fromtimestamp(1476107241)
+        ))
+
+        post.assert_called_with(
+            'https://localhost:8086/write?precision=s&db=testdb',
             auth=('user', 'pass'),
             data='temperature value=21.3 1476107241'
         )
@@ -130,7 +152,7 @@ class TestWrite:
         ])
 
         post.assert_called_with(
-            'https://localhost:8086/write?db=testdb',
+            'https://localhost:8086/write?precision=s&db=testdb',
             auth=('user', 'pass'),
             data='temperature value=32.1 1476107241\n'
                  'temperature value=21.9 1476107319'
@@ -145,7 +167,7 @@ class TestWrite:
         ])
 
         post.assert_called_with(
-            'https://localhost:8086/write?db=testdb',
+            'https://localhost:8086/write?precision=s&db=testdb',
             auth=('user', 'pass'),
             data='temperature value=21.3 1476107241\n'
                  'temperature value=21.9 1476107319'
@@ -166,7 +188,7 @@ class TestSession:
         session.commit()
 
         post.assert_called_with(
-            'https://localhost:8086/write?db=testdb',
+            'https://localhost:8086/write?precision=s&db=testdb',
             auth=('user', 'pass'),
             data='temperature value=23.1 1475848864\n'
                  'temperature value=25.0 1475849823'
@@ -178,7 +200,7 @@ class TestSession:
             session.write('temperature', value=25.0, timestamp=1475849823)
 
         post.assert_called_with(
-            'https://localhost:8086/write?db=testdb',
+            'https://localhost:8086/write?precision=s&db=testdb',
             auth=('user', 'pass'),
             data='temperature value=23.1 1475848864\n'
                  'temperature value=25.0 1475849823'
@@ -198,7 +220,7 @@ class TestSession:
         session.write('temperature', value=25.1, timestamp=1475849999)
 
         post.assert_called_with(
-            'https://localhost:8086/write?db=testdb',
+            'https://localhost:8086/write?precision=s&db=testdb',
             auth=('user', 'pass'),
             data='temperature value=23.1 1475848864\n'
                  'temperature value=25.0 1475849823\n'
@@ -222,7 +244,7 @@ class TestSession:
         ])
 
         post.assert_called_with(
-            'https://localhost:8086/write?db=testdb',
+            'https://localhost:8086/write?precision=s&db=testdb',
             auth=('user', 'pass'),
             data='temperature value=23.1 1475848864\n'
                  'temperature value=25.0 1475849823\n'

@@ -9,11 +9,8 @@ Examples
 You can write measurements in a few different ways, but writing a single
 "temperature" measurement is as simple as:
 
-.. code:: python
-
-    from inflow import Client
-    client = Client('http://username:pass@localhost:8086/databasename')
-    client.write('temperature', value=21.3)
+.. literalinclude:: ../../examples/single_write.py
+    :language: python
 
 No time is specified in the above example, so inflow automatically set's the
 measurement's time to the current time. Also, no tags are provided to the
@@ -21,75 +18,27 @@ measurement's time to the current time. Also, no tags are provided to the
 
 A more complex example of writing a single measurement:
 
-.. code:: python
-
-    from inflow import Client
-
-    client = Client('http://username:pass@localhost:8086/databasename')
-
-    client.write(
-        'temperature'
-        tags={
-            'location': 'groningen',
-            'sensor_type': 'ni1000'
-        },
-        value=21.3,
-        timestamp=1475845863
-    )
+.. literalinclude:: ../../examples/single_write_more.py
+    :language: python
 
 Writing multiple measurements is also possible:
 
-.. code:: python
-
-    from inflow import Client, Measurement
-
-    client = Client('http://username:pass@localhost:8086/databasename')
-
-    client.write([
-        Measurement(
-            name='temperature',
-            tags={
-                'location': 'groningen',
-                'sensor_type': 'ni1000'
-            },
-            value=21.3,
-            timestamp=1475845863
-        ),
-        Measurement(
-            name='temperature',
-            tags={
-                'location': 'groningen',
-                'sensor_type': 'ni1000'
-            },
-            value=20.1,
-            timestamp=1475848864
-        )
-    ])
+.. literalinclude:: ../../examples/write_multiple_verbose.py
+    :language: python
 
 However, this is a bit verbose. That's why you can also do this:
 
-.. code:: python
-
-    from inflow import Client
-
-    client = Client('http://username:pass@localhost:8086/databasename')
-
-    temperature = dict(
-        name='temperature',
-        tags={
-            'location': 'groningen',
-            'sensor_type': 'ni1000'
-        }
-    )
-
-    client.write(temperature, [
-        {'value': 21.3, 'timestamp': 1475845863},
-        {'value': 20.1, 'timestamp': 1475846182}
-    ])
+.. literalinclude:: ../../examples/write_multiple_succinct.py
+    :language: python
 
 In the above examples, every ``write`` call will issue a direct call to the
 InfluxDB API. You can accumulate measurements and write them all at once using
 :ref:`sessions`.
+
+.. note:: In every example, we use timestamp ints (in seconds) to specify the
+          time for each measurement. You can also set the timestamp to a
+          datetime. Inflow will automatically convert both to the right
+          precision when writing to InfluxDB.
 
 Multiple Values
 ---------------
@@ -100,14 +49,8 @@ of values for every measurements. This is also possible in Inflow:
 
 .. code:: python
 
-    from inflow import Client
-
-    client.write(
-        'temperature',
-        timestamp=1475846182,
-        lower_sensor=20.9,
-        upper_sensor=23.2
-    )
+.. literalinclude:: ../../examples/write_multiple_values.py
+    :language: python
 
 This will create a measurement with the ``lower_sensor`` and ``upper_sensor``
 values. This method also works when manually writing ``Measurement``
@@ -116,5 +59,10 @@ instances, and when writing lists of dicts.
 Precision
 ---------
 
-Currently, inflow only supports a precision in seconds. This may change in the
-future, though.
+By default, Inflow assumes the timestamps that are written to InfluxDB are in
+seconds. However, you can specify a custom precision when creating the client:
+
+.. literalinclude:: ../../examples/different_precision.py
+    :language: python
+
+The precision needs to be one of: `h`, `m`, `s`, `ms`, `u` or `ns`.

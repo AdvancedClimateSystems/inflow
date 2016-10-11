@@ -1,9 +1,20 @@
 import six
+
 from functools import partial
+from datetime import datetime
+
 from .utils import to_comma_separated_string, escape
 
 __all__ = ['Measurement']
 
+PRECISION_MULTIPLIERS = {
+    'ns': 10**9,
+    'u': 1000000.0,
+    'ms': 1000.0,
+    's': 1.0,
+    'm': 0.017,
+    'h': 0.000278
+}
 
 escape_tags = partial(escape, [',', '=', ' '])
 escape_measurements = partial(escape, [',', ' '])
@@ -24,11 +35,17 @@ class Measurement:
 
     def __init__(self, name, timestamp=None, tags=None, **values):
         self.name = name
-        self.timestamp = timestamp
         self.values = values
         self.tags = tags
 
-    def to_line(self):
+        if timestamp is None:
+            self.timestamp = datetime.now()
+        elif isinstance(timestamp, six.integer_types):
+            self.timestamp = datetime.fromtimestamp(timestamp)
+        else:
+            self.timestamp = timestamp
+
+    def to_line(self, precision='s'):
         tags = None
         if self.tags is not None:
             tags = sorted([(escape_tags(k), escape_tags(v))
@@ -37,11 +54,13 @@ class Measurement:
         values = [(escape_tags(k), to_line_value(v))
                   for k, v in self.values.items()]
 
+        multiplier = PRECISION_MULTIPLIERS[precision]
+
         return '{name}{tags} {values} {timestamp}'.format(
             name=escape_measurements(self.name),
             tags=(',' + to_comma_separated_string(tags)
                   if tags is not None
                   else ''),
             values=to_comma_separated_string(values),
-            timestamp=self.timestamp
+            timestamp=int(self.timestamp.timestamp() * multiplier)
         )
