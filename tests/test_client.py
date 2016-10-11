@@ -105,6 +105,7 @@ class TestWrite:
                  'temperature value=21.9 1476107319'
         )
 
+
 class TestSession:
     # TODO: write session tests
     pass
