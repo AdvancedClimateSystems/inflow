@@ -63,6 +63,45 @@ class TestWrite:
             data='temperature value=21.3 1476107241'
         )
 
+    def test_sorted_tags(self, client, post):
+        client.write('temperature', tags={'b': 'tag', 'a': 'tag'}, value=21.3,
+                     timestamp=1476107241)
+
+        post.assert_called_with(
+            'https://localhost:8086/write?db=testdb',
+            auth=('user', 'pass'),
+            data='temperature,a=tag,b=tag value=21.3 1476107241'
+        )
+
+    def test_escaped_tags(self, client, post):
+        client.write('temperature', tags={'a,=b ': 'a,=b '}, value=21.3,
+                     timestamp=1476107241)
+
+        post.assert_called_with(
+            'https://localhost:8086/write?db=testdb',
+            auth=('user', 'pass'),
+            data='temperature,a\\,\\=b\\ =a\\,\\=b\\  value=21.3 1476107241'
+        )
+
+    def test_escaped_measurements(self, client, post):
+        client.write('temp er,ature', value=21.3, timestamp=1476107241)
+
+        post.assert_called_with(
+            'https://localhost:8086/write?db=testdb',
+            auth=('user', 'pass'),
+            data='temp\\ er\\,ature value=21.3 1476107241'
+        )
+
+    def test_escaped_string_values(self, client, post):
+        client.write('temperature', value='well, a pretty nice "temperature"',
+                     timestamp=1476107241)
+
+        post.assert_called_with(
+            'https://localhost:8086/write?db=testdb',
+            auth=('user', 'pass'),
+            data='temperature value="well, a pretty nice \\"temperature\\"" 1476107241'
+        )
+
     def test_measurement_instance(self, client, post):
         client.write(Measurement(
             'temperature',
