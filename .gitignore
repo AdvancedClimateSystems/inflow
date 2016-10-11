@@ -1,0 +1,11 @@
+.env
+.py[ocd]
+__pycache__
+build
+htmlcov
+.coverage
+.ropeproject
+docs/build
+.cache
+*.egg-info
+.eggs
