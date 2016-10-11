@@ -25,6 +25,9 @@ calls. After doing some ``write`` calls, we call ``commit`` on the session.
 This will issue the write to the InfluxDB API. If ``commit`` isn't called on
 the sessions, the data given in the ``write``'s will be lost.
 
+.. note:: The session's ``write`` method works exactly the same as that of the
+          normal client.
+
 As a Context Manager
 --------------------
 

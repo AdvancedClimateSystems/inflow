@@ -1,0 +1,6 @@
+[run]
+branch = True
+
+[html]
+directory = htmlcov
+title = Inflow coverage report
