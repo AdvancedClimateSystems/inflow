@@ -1,3 +1,6 @@
+.. image:: https://travis-ci.org/AdvancedClimateSystems/inflow.svg?branch=develop
+    :target: https://travis-ci.org/AdvancedClimateSystems/inflow
+
 Inflow
 ======
 
