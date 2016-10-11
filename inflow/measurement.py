@@ -7,6 +7,8 @@ from .utils import to_comma_separated_string, escape
 
 __all__ = ['Measurement']
 
+EPOCH = datetime(1970, 1, 1)
+
 PRECISION_MULTIPLIERS = {
     'ns': 10**9,
     'u': 1000000.0,
@@ -28,6 +30,17 @@ def to_line_value(value):
         return '"{}"'.format(escape_string_values(value))
 
     return value
+
+
+def to_timestamp(timestamp):
+    """ Converts a datetime object to timestamp. Needed for py3 and py2 cross
+    compat."""
+    try:
+        return timestamp.timestamp()
+
+    # Python 2 does not have timestamp method, so we use a surrogate.
+    except AttributeError:
+        return (timestamp - EPOCH).total_seconds()
 
 
 class Measurement:
@@ -62,5 +75,5 @@ class Measurement:
                   if tags is not None
                   else ''),
             values=to_comma_separated_string(values),
-            timestamp=int(self.timestamp.timestamp() * multiplier)
+            timestamp=int(to_timestamp(self.timestamp) * multiplier)
         )
