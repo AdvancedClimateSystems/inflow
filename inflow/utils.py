@@ -1,3 +1,5 @@
+import six
+
 __all__ = ['to_comma_separated_string', 'escape']
 
 
@@ -25,6 +27,9 @@ def escape(characters, string):
     If a non-string is given to be escaped, we return the non-string without
     escaping.
     """
+    if not isinstance(string, six.string_types):
+        return string
+
     for char in characters:
         string = string.replace(char, '\\' + char)
     return string

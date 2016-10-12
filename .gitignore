@@ -9,3 +9,4 @@ docs/build
 .cache
 *.egg-info
 .eggs
+dist/
