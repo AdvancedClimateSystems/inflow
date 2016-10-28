@@ -53,7 +53,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = 'Inflow'
-copyright = '2016, Jaap Broekhuizen'
+copyright = '2016, Advanced Climate Systems bv'
 author = 'Jaap Broekhuizen'
 
 # The version info for the project you're documenting, acts as replacement for
