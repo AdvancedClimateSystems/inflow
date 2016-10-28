@@ -8,8 +8,8 @@ __all__ = ['Client']
 class Client(WriteMixin):
     """ The InfluxDB client. """
 
-    def __init__(self, uri, precision='s'):
-        self.connection = Connection(uri, precision)
+    def __init__(self, uri, precision='s', retention_policy=None):
+        self.connection = Connection(uri, precision, retention_policy)
 
     def write_func(self, measurement):
         return self.connection.write(measurement)
