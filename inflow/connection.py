@@ -1,6 +1,9 @@
 from requests import post, get
 from six.moves.urllib.parse import urlparse, quote_plus
 
+from .exceptions import (QueryFailedException, WriteFailedException,
+                         DatabaseNotFoundException)
+
 __all__ = ['Connection']
 
 # All these types of queries should issue a GET request.
@@ -129,10 +132,19 @@ class Connection:
         else:
             data = measurement.to_line(self.precision)
 
-        return post(self.get_write_url(), auth=self.auth, data=data)
+        rv = post(self.get_write_url(), auth=self.auth, data=data)
+
+        if rv.status_code == 400 or rv.status_code == 500:
+            raise WriteFailedException(rv.json()['error'])
+        elif rv.status_code == 404:
+            raise DatabaseNotFoundException(rv.json()['error'])
 
     def query(self, query, epoch=None):
         """ Execute a query on InfluxDB. """
         method = get_method(query)
         rv = method(self.get_query_url(query, epoch), auth=self.auth)
+
+        if rv.status_code == 400:
+            raise QueryFailedException(rv.json()['error'])
+
         return parse_query_response(rv)

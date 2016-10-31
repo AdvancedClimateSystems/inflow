@@ -11,3 +11,4 @@ Table of Contents
     measurements
     sessions
     querying
+    error_handling
