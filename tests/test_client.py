@@ -84,6 +84,16 @@ class TestWrite:
             data='temperature value=21.3 1476107241'
         )
 
+    def test_retention_policy_on_write_call(self, post):
+        client = Client('https://user:pass@localhost:8086/testdb')
+        client.write('temperature', value=21.3, timestamp=1476107241,
+                     retention_policy='rp_four_weeks')
+        post.assert_called_with(
+            'https://localhost:8086/write?precision=s&db=testdb&rp=rp_four_weeks',
+            auth=('user', 'pass'),
+            data='temperature value=21.3 1476107241'
+        )
+
     def test_sorted_tags(self, client, post):
         client.write('temperature', tags={'b': 'tag', 'a': 'tag'}, value=21.3,
                      timestamp=1476107241)

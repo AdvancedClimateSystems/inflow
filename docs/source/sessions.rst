@@ -69,3 +69,20 @@ calls, using ``autocommit_every``:
 
     # This next write call will trigger the autocommit.
     session.write('temperature', value=25.1, timestamp=1475849999)
+
+Retention Policies
+------------------
+
+You can also specify the retention policy for the entire session:
+
+.. code:: python
+
+    from inflow import Client
+
+    client = Client('http://username:pass@localhost:8086/databasename')
+
+    with client.session(retention_policy='rp_four_weeks') as session:
+        session.write('temperature', value=23.1, timestamp=1475848864)
+
+.. note:: Unlike the `Client.write` method, you cannot specify the retention
+          policy on the `Session.write`. Retention policies are Session-wide.

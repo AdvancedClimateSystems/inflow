@@ -67,7 +67,7 @@ seconds. However, you can specify a custom precision when creating the client:
 
 The precision needs to be one of: `h`, `m`, `s`, `ms`, `u` or `ns`.
 
-Retention policies
+Retention Policies
 ------------------
 
 By default, Inflow will write to the database's default retention policy.
@@ -75,4 +75,9 @@ However, you can explicitly specify which retention policy your measurements
 should be written to:
 
 .. literalinclude:: ../../examples/explicit_retention_policy.py
+    :language: python
+
+You can also specify the retention policy when calling into ``write``:
+
+.. literalinclude:: ../../examples/single_write_retention_policy.py
     :language: python
