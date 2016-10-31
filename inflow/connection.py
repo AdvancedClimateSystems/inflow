@@ -1,9 +1,5 @@
 from requests import post, get
-
-try:
-    from urlparse import urlparse, quote_plus
-except:
-    from urllib.parse import urlparse, quote_plus
+from six.moves.urllib.parse import urlparse, quote_plus
 
 __all__ = ['Connection']
 
