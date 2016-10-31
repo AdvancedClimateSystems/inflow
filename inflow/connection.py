@@ -1,11 +1,64 @@
-from requests import post
+from requests import post, get
 
 try:
-    from urlparse import urlparse
+    from urlparse import urlparse, quote_plus
 except:
-    from urllib.parse import urlparse
+    from urllib.parse import urlparse, quote_plus
 
 __all__ = ['Connection']
+
+# All these types of queries should issue a GET request.
+GET_QUERIES = ['SELECT', 'SHOW']
+
+
+def get_method(query):
+    """ Determines which method should be used to execute this query.
+
+    These query types should be issues using a GET:
+
+      * SELECT
+      * SHOW
+
+    These query types should be issues using a POST:
+
+      * SELECT INTO
+      * ALTER
+      * CREATE
+      * DELETE
+      * DROP
+      * GRANT
+      * KILL
+      * REVOKE
+    """
+    if 'INTO' not in query:
+        for word in GET_QUERIES:
+            if word in query:
+                return get
+
+    return post
+
+
+def parse_query_response(response):
+    """ Parses the query response and returns a list of response objects. """
+    retval = []
+    data = response.json()
+    series = data['results'][0]['series']
+
+    for s in series:
+        parsed = dict(
+            name=s['name'],
+            values=[]
+        )
+
+        for v in s['values']:
+            parsed['values'].append({
+                key: value
+                for key, value in zip(s['columns'], v)
+            })
+
+        retval.append(parsed)
+
+    return retval
 
 
 class Connection:
@@ -43,8 +96,8 @@ class Connection:
         self.precision = precision
         self.retention_policy = retention_policy
 
-    @property
-    def write_url(self):
+    def get_write_url(self):
+        """ Returns the url needed to write measurements to InfluxDB. """
         url = '{}/write?precision={}&db={}'.format(
             self.uri,
             self.precision,
@@ -56,6 +109,19 @@ class Connection:
 
         return url
 
+    def get_query_url(self, query, epoch):
+        """ Returns the url needed to query measurements from InfluxDB. """
+        url = '{}/query?db={}&q={}'.format(
+            self.uri,
+            self.db,
+            quote_plus(query)
+        )
+
+        if epoch is not None:
+            url = '{}&epoch={}'.format(url, epoch)
+
+        return url
+
     def write(self, measurement):
         """ Write a single measurement to the InfluxDB API. """
         if type(measurement) is list:
@@ -63,4 +129,10 @@ class Connection:
         else:
             data = measurement.to_line(self.precision)
 
-        return post(self.write_url, auth=self.auth, data=data)
+        return post(self.get_write_url(), auth=self.auth, data=data)
+
+    def query(self, query, epoch=None):
+        """ Execute a query on InfluxDB. """
+        method = get_method(query)
+        rv = method(self.get_query_url(query, epoch), auth=self.auth)
+        return parse_query_response(rv)
