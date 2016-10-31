@@ -1,7 +1,9 @@
 import json
 import pytest
 from datetime import datetime
-from inflow import Client, Measurement
+from inflow import (Client, Measurement, WriteFailedException,
+                    DatabaseNotFoundException, QueryFailedException,
+                    UnauthorizedException, ForbiddenException)
 
 try:
     from unittest.mock import Mock
@@ -195,6 +197,26 @@ class TestWrite:
         with pytest.raises(ValueError):
             client.write(1234)
 
+    @pytest.fixture
+    def post_mock_response(self, post):
+        response_mock = Mock()
+        response_mock.json.return_value = dict(error='some error')
+        post.return_value = response_mock
+        return response_mock
+
+    @pytest.mark.parametrize(('status_code', 'exception'), [
+        (400, WriteFailedException),
+        (404, DatabaseNotFoundException),
+        (500, WriteFailedException),
+        (401, UnauthorizedException),
+        (403, ForbiddenException)
+    ])
+    def test_exception(self, client, status_code, exception, post,
+                       post_mock_response):
+        post_mock_response.status_code = status_code
+        with pytest.raises(exception):
+            client.write('temperature', value=10)
+
 
 class TestSession:
     def test_write_to_session(self, client, post):
@@ -387,3 +409,21 @@ class TestQuery:
 
         url = get.call_args[0][0]
         assert 'SELECT+%2A+FROM+%22temperatures%22' in url
+
+    @pytest.fixture
+    def get_mock_response(self, get):
+        response_mock = Mock()
+        response_mock.json.return_value = dict(error='some error')
+        get.return_value = response_mock
+        return response_mock
+
+    @pytest.mark.parametrize(('status_code', 'exception'), [
+        (400, QueryFailedException),
+        (401, UnauthorizedException),
+        (403, ForbiddenException)
+    ])
+    def test_exception(self, client, status_code, exception, get,
+                       get_mock_response):
+        get_mock_response.status_code = status_code
+        with pytest.raises(exception):
+            client.query('SELECT * FROM measurements')
