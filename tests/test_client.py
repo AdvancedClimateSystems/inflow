@@ -342,7 +342,6 @@ class TestQuery:
             "location": "groningen"
         }
 
-
     @pytest.mark.parametrize('query', [
         'SELECT * FROM "temperatures"',
         'SHOW FIELD KEYS from "temperatures"'
