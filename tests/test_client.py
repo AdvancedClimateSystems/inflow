@@ -209,10 +209,11 @@ class TestWrite:
         (500, WriteFailedException),
     ])
     def test_exception(self, client, status_code, exception, post,
-                                    post_mock_response):
+                       post_mock_response):
         post_mock_response.status_code = status_code
         with pytest.raises(exception):
             client.write('temperature', value=10)
+
 
 class TestSession:
     def test_write_to_session(self, client, post):
@@ -417,5 +418,3 @@ class TestQuery:
         get_mock_response.status_code = 400
         with pytest.raises(QueryFailedException):
             client.query('SELECT * FROM measurements')
-
-
