@@ -1,5 +1,6 @@
 __all__ = ['InfluxDBException', 'QueryFailedException', 'WriteFailedException',
-           'DatabaseNotFoundException']
+           'DatabaseNotFoundException', 'UnauthorizedException',
+           'ForbiddenException']
 
 
 class InfluxDBException(Exception):
@@ -25,4 +26,15 @@ class WriteFailedException(InfluxDBException):
 
 class DatabaseNotFoundException(InfluxDBException):
     """ Thrown when trying to write to a non-existing database. """
+    pass
+
+
+class UnauthorizedException(InfluxDBException):
+    """ Thrown when trying to log in using incorrect credentials. """
+    pass
+
+
+class ForbiddenException(InfluxDBException):
+    """ Thrown when a user is correctly logged in, but is not allowed to do the
+    query or write action it wants to do. """
     pass

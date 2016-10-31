@@ -2,7 +2,8 @@ import json
 import pytest
 from datetime import datetime
 from inflow import (Client, Measurement, WriteFailedException,
-                    DatabaseNotFoundException, QueryFailedException)
+                    DatabaseNotFoundException, QueryFailedException,
+                    UnauthorizedException, ForbiddenException)
 
 try:
     from unittest.mock import Mock
@@ -207,6 +208,8 @@ class TestWrite:
         (400, WriteFailedException),
         (404, DatabaseNotFoundException),
         (500, WriteFailedException),
+        (401, UnauthorizedException),
+        (403, ForbiddenException)
     ])
     def test_exception(self, client, status_code, exception, post,
                        post_mock_response):
@@ -414,7 +417,13 @@ class TestQuery:
         get.return_value = response_mock
         return response_mock
 
-    def test_exception(self, client, get, get_mock_response):
-        get_mock_response.status_code = 400
-        with pytest.raises(QueryFailedException):
+    @pytest.mark.parametrize(('status_code', 'exception'), [
+        (400, QueryFailedException),
+        (401, UnauthorizedException),
+        (403, ForbiddenException)
+    ])
+    def test_exception(self, client, status_code, exception, get,
+                       get_mock_response):
+        get_mock_response.status_code = status_code
+        with pytest.raises(exception):
             client.query('SELECT * FROM measurements')
