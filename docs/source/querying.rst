@@ -20,14 +20,19 @@ the above example, which will return a list with the following structure:
 
     [
         {
-            'time': '2016-01-10T00:01:00Z',
-            'value': 21.0,
-            'location': 'groningen'
-        },
-        {
-            'time': '2016-01-10T00:02:00Z',
-            'value': 23.0,
-            'location': 'groningen'
+            'name': 'temperature',
+            'values': [
+                {
+                    'time': '2016-01-10T00:01:00Z',
+                    'value': 21.0,
+                    'location': 'groningen'
+                },
+                {
+                    'time': '2016-01-10T00:02:00Z',
+                    'value': 23.0,
+                    'location': 'groningen'
+                }
+            ]
         }
     ]
 
