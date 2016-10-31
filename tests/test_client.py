@@ -1,3 +1,4 @@
+import json
 import pytest
 from datetime import datetime
 from inflow import Client, Measurement
@@ -16,6 +17,13 @@ def client():
 @pytest.fixture
 def post(monkeypatch):
     post = Mock()
+    response_mock = Mock()
+    response_mock.json.return_value = json.loads("""{
+        "results": [{
+            "series": []
+        }]
+    }""")
+    post.return_value = response_mock
     monkeypatch.setattr('inflow.connection.post', post)
     return post
 
@@ -263,3 +271,119 @@ class TestSession:
                  'temperature value=25.1 1475849999\n'
                  'temperature value=29.3 1475859999'
         )
+
+
+@pytest.fixture
+def get(monkeypatch):
+    get = Mock()
+    response_mock = Mock()
+    response_mock.json.return_value = json.loads("""{
+        "results": [{
+            "series": [{
+                "name": "temperatures",
+                "columns": ["time", "value", "location"],
+                "values": [
+                    ["2016-01-01T00:01:00Z", 20.1, "groningen"],
+                    ["2016-01-01T00:02:00Z", 23.0, "groningen"]
+                ]
+            }]
+        }]
+    }""")
+    get.return_value = response_mock
+    monkeypatch.setattr('inflow.connection.get', get)
+    return get
+
+
+class TestQuery:
+    def test_get_measurements(self, client, get):
+        """ Should be able to parse resulting measurements into a nice list of
+        dicts.
+
+        InfluxDB returns this:
+
+            {
+                "results": [{
+                    "series": [{
+                        "name": "temperatures",
+                        "columns": ["time", "value", "location"],
+                        "values": [
+                            ["2016-01-01T00:01:00Z", 20.1, "groningen"],
+                            ["2016-01-01T00:02:00Z", 23.0, "groningen"],
+                        ]
+                    }]
+                }]
+            }
+
+        And it should become:
+
+            [
+                {
+                    "name": "temperatures",
+                    "values": [
+                        {
+                            "time": "2016-01-01T00:01:00Z",
+                            "value": 20.1,
+                            "location": "groningen"
+                        },
+                        {
+                            "time": "2016-01-01T00:02:00Z",
+                            "value": 23.0,
+                            "location": "groningen"
+                        }
+                    ]
+                }
+            ]
+        """
+        rv = client.query('SELECT * FROM "temperatures"')
+        assert rv[0]['name'] == 'temperatures'
+        assert rv[0]['values'][0] == {
+            "time": "2016-01-01T00:01:00Z",
+            "value": 20.1,
+            "location": "groningen"
+        }
+
+    @pytest.mark.parametrize('query', [
+        'SELECT * FROM "temperatures"',
+        'SHOW FIELD KEYS from "temperatures"'
+    ])
+    def test_should_call_get(self, client, query, get, post):
+        """ Should use GET for these queries. """
+        client.query(query)
+        assert get.called
+
+    @pytest.mark.parametrize('query', [
+        'SELECT mean(value) as value INTO "temperature_averages" FROM "temperatures"',
+        'ALTER RETENTION POLICY "rp_four_weeks" DEFAULT',
+        'CREATE DATABASE "new_db"',
+        'DELETE FROM "temperatures"',
+        'DROP DATABASE "new_db"',
+        'GRANT ALL TO "user"',
+        'KILL QUERY 36',
+        'REVOKE ALL PRIVILEGES FROM "user"'
+    ])
+    def test_should_call_post(self, client, query, post, get):
+        """ Should use POST for these queries. """
+        client.query(query)
+        assert post.called
+
+    def test_should_use_epoch_on_query(self, client, get):
+        client.query('SELECT * FROM "temperature"', epoch='s')
+
+        # If get is not called, get.call_args is None
+        assert get.call_args is not None
+
+        url = get.call_args[0][0]
+        assert 'epoch=s' in url
+
+    def test_should_throw_on_invalid_epoch(self, client, get):
+        with pytest.raises(ValueError):
+            client.query('SELECT * FROM "temperature"', epoch='not an epoch')
+
+    def test_should_quote_query(self, client, get):
+        client.query('SELECT * FROM "temperatures"')
+
+        # If get is not called, get.call_args is None
+        assert get.call_args is not None
+
+        url = get.call_args[0][0]
+        assert 'SELECT+%2A+FROM+%22temperatures%22' in url

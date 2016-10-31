@@ -28,6 +28,10 @@ the sessions, the data given in the ``write``'s will be lost.
 .. note:: The session's ``write`` method works exactly the same as that of the
           normal client.
 
+.. warning:: Don't try to call ``query`` on a session, as Sessions are only
+             meant to do writes. If you want to do queries, just use the
+             Client.
+
 As a Context Manager
 --------------------
 

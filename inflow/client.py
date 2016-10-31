@@ -16,3 +16,6 @@ class Client(WriteMixin):
 
     def session(self, autocommit_every=None):
         return Session(self.connection, autocommit_every)
+
+    def query(self, query, epoch=None):
+        return self.connection.query(query, epoch)
