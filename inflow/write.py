@@ -9,8 +9,12 @@ class WriteMixin:
         """ Write a measurement to InfluxDB. """
         first = args[0]
 
+        retention_policy = kwargs.get('retention_policy', None)
+        if 'retention_policy' in kwargs:
+            del kwargs['retention_policy']
+
         if isinstance(first, Measurement):
-            return self.write_func(first)
+            return self.write_func(first, retention_policy=retention_policy)
 
         elif type(first) is dict:
             measurements = []
@@ -19,15 +23,19 @@ class WriteMixin:
                 merge.update(measurement)
 
                 measurements.append(Measurement(**merge))
-            return self.write_func(measurements)
+            return self.write_func(measurements,
+                                   retention_policy=retention_policy)
 
         elif type(first) is list:
-            return self.write_func(first)
+            return self.write_func(first, retention_policy=retention_policy)
 
         elif isinstance(first, six.string_types):
-            return self.write_func(Measurement(
-                name=first,
-                **kwargs
-            ))
+            return self.write_func(
+                Measurement(
+                    name=first,
+                    **kwargs
+                ),
+                retention_policy=retention_policy
+            )
         else:
             raise ValueError('Can\'t create measurements based on the given arguments.')

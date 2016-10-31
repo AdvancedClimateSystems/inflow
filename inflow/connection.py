@@ -96,7 +96,7 @@ class Connection:
         self.precision = precision
         self.retention_policy = retention_policy
 
-    def get_write_url(self):
+    def get_write_url(self, retention_policy=None):
         """ Returns the url needed to write measurements to InfluxDB. """
         url = '{}/write?precision={}&db={}'.format(
             self.uri,
@@ -104,7 +104,9 @@ class Connection:
             self.db
         )
 
-        if self.retention_policy is not None:
+        if retention_policy is not None:
+            url = '{}&rp={}'.format(url, retention_policy)
+        elif self.retention_policy is not None:
             url = '{}&rp={}'.format(url, self.retention_policy)
 
         return url
@@ -126,14 +128,15 @@ class Connection:
 
         return url
 
-    def write(self, measurement):
+    def write(self, measurement, retention_policy=None):
         """ Write a single measurement to the InfluxDB API. """
         if type(measurement) is list:
             data = '\n'.join([m.to_line(self.precision) for m in measurement])
         else:
             data = measurement.to_line(self.precision)
 
-        rv = post(self.get_write_url(), auth=self.auth, data=data)
+        rv = post(self.get_write_url(retention_policy), auth=self.auth,
+                  data=data)
 
         error = rv.json().get('error', None)
 

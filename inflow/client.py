@@ -11,11 +11,11 @@ class Client(WriteMixin):
     def __init__(self, uri, precision='s', retention_policy=None):
         self.connection = Connection(uri, precision, retention_policy)
 
-    def write_func(self, measurement):
-        return self.connection.write(measurement)
+    def write_func(self, measurement, **kwargs):
+        return self.connection.write(measurement, **kwargs)
 
-    def session(self, autocommit_every=None):
-        return Session(self.connection, autocommit_every)
+    def session(self, autocommit_every=None, retention_policy=None):
+        return Session(self.connection, autocommit_every, retention_policy)
 
     def query(self, query, epoch=None):
         return self.connection.query(query, epoch)
