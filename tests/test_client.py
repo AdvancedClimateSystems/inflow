@@ -375,6 +375,10 @@ class TestQuery:
         url = get.call_args[0][0]
         assert 'epoch=s' in url
 
+    def test_should_throw_on_invalid_epoch(self, client, get):
+        with pytest.raises(ValueError):
+            client.query('SELECT * FROM "temperature"', epoch='not an epoch')
+
     def test_should_quote_query(self, client, get):
         client.query('SELECT * FROM "temperatures"')
 

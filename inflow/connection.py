@@ -106,7 +106,7 @@ class Connection:
         return url
 
     def get_query_url(self, query, epoch):
-        """ Returns the url needed to query measurements from InfluxDB. """
+        """ Returns the url needed to query measurements from InfluxDB.  """
         url = '{}/query?db={}&q={}'.format(
             self.uri,
             self.db,
@@ -114,6 +114,10 @@ class Connection:
         )
 
         if epoch is not None:
+            if epoch not in ['h', 'm', 's', 'ms', 'u', 'ns']:
+                raise ValueError('Invalid epoch provided, must be one of '
+                                 'h, m, s, ms, u or ns.')
+
             url = '{}&epoch={}'.format(url, epoch)
 
         return url
