@@ -42,7 +42,7 @@ def parse_query_response(response):
     """ Parses the query response and returns a list of response objects. """
     retval = []
     data = response.json()
-    series = data['results'][0]['series']
+    series = data['results'][0].get('series', [])
 
     for s in series:
         parsed = dict(
@@ -59,6 +59,10 @@ def parse_query_response(response):
         retval.append(parsed)
 
     return retval
+
+
+def get_error(response):
+    return response.json().get('error', None)
 
 
 class Connection:
@@ -138,29 +142,25 @@ class Connection:
         rv = post(self.get_write_url(retention_policy), auth=self.auth,
                   data=data)
 
-        error = rv.json().get('error', None)
-
         if rv.status_code == 400 or rv.status_code == 500:
-            raise WriteFailedException(error)
+            raise WriteFailedException(get_error(rv))
         elif rv.status_code == 401:
-            raise UnauthorizedException(error)
+            raise UnauthorizedException(get_error(rv))
         elif rv.status_code == 403:
-            raise ForbiddenException(error)
+            raise ForbiddenException(get_error(rv))
         elif rv.status_code == 404:
-            raise DatabaseNotFoundException(error)
+            raise DatabaseNotFoundException(get_error(rv))
 
     def query(self, query, epoch=None):
         """ Execute a query on InfluxDB. """
         method = get_method(query)
         rv = method(self.get_query_url(query, epoch), auth=self.auth)
 
-        error = rv.json().get('error', None)
-
         if rv.status_code == 400:
-            raise QueryFailedException(error)
+            raise QueryFailedException(get_error(rv))
         elif rv.status_code == 401:
-            raise UnauthorizedException(error)
+            raise UnauthorizedException(get_error(rv))
         elif rv.status_code == 403:
-            raise ForbiddenException(error)
+            raise ForbiddenException(get_error(rv))
 
         return parse_query_response(rv)
