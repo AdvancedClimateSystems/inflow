@@ -1,6 +1,6 @@
 import json
 import pytest
-from datetime import datetime
+from datetime import datetime, timezone
 from inflow import (Client, Measurement, WriteFailedException,
                     DatabaseNotFoundException, QueryFailedException,
                     UnauthorizedException, ForbiddenException)
@@ -158,7 +158,7 @@ class TestWrite:
         client.write(Measurement(
             'temperature',
             value=21.3,
-            timestamp=datetime.fromtimestamp(1476107241)
+            timestamp=datetime.fromtimestamp(1476107241, timezone.utc)
         ))
 
         post.assert_called_with(

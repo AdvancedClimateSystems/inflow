@@ -1,7 +1,7 @@
 import six
 
 from functools import partial
-from datetime import datetime
+from datetime import datetime, timezone
 
 from .utils import to_comma_separated_string, escape
 
@@ -52,9 +52,9 @@ class Measurement:
         self.tags = tags
 
         if timestamp is None:
-            self.timestamp = datetime.now()
+            self.timestamp = datetime.now(tz=timezone.utc)
         elif isinstance(timestamp, six.integer_types):
-            self.timestamp = datetime.fromtimestamp(timestamp)
+            self.timestamp = datetime.fromtimestamp(timestamp, timezone.utc)
         else:
             self.timestamp = timestamp
 

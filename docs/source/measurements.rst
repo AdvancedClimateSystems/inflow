@@ -40,6 +40,9 @@ InfluxDB API. You can accumulate measurements and write them all at once using
           datetime. Inflow will automatically convert both to the right
           precision when writing to InfluxDB.
 
+.. warning:: If you supply a Python `datetime` instance as the timestamp, make
+             sure it is a timezone-aware instance, in the UTC timezone.
+
 Multiple Values
 ---------------
 
