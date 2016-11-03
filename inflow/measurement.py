@@ -1,13 +1,18 @@
 import six
 
 from functools import partial
-from datetime import datetime, timezone
+from datetime import datetime
 
 from .utils import to_comma_separated_string, escape
 
+try:
+    from datetime import timezone
+except:
+    import pytz as timezone
+
 __all__ = ['Measurement']
 
-EPOCH = datetime(1970, 1, 1)
+EPOCH = datetime(1970, 1, 1).replace(tzinfo=timezone.utc)
 
 PRECISION_MULTIPLIERS = {
     'ns': 10**9,

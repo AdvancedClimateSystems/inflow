@@ -1,9 +1,14 @@
 import json
 import pytest
-from datetime import datetime, timezone
+from datetime import datetime
 from inflow import (Client, Measurement, WriteFailedException,
                     DatabaseNotFoundException, QueryFailedException,
                     UnauthorizedException, ForbiddenException)
+
+try:
+    from datetime import timezone
+except:
+    import pytz as timezone
 
 try:
     from unittest.mock import Mock

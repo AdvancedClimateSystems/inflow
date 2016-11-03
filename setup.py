@@ -18,7 +18,8 @@ setup(
     packages=['inflow'],
     install_requires=[
         'requests~=2.11.1',
-        'six~=1.10.0'
+        'six~=1.10.0',
+        'pytz'
     ],
     classifiers=[
         'Intended Audience :: Developers',
