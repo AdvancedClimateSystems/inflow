@@ -6,6 +6,11 @@ from inflow import (Client, Measurement, WriteFailedException,
                     UnauthorizedException, ForbiddenException)
 
 try:
+    from datetime import timezone
+except:
+    import pytz as timezone
+
+try:
     from unittest.mock import Mock
 except:
     from mock import Mock
@@ -158,7 +163,7 @@ class TestWrite:
         client.write(Measurement(
             'temperature',
             value=21.3,
-            timestamp=datetime.fromtimestamp(1476107241)
+            timestamp=datetime.fromtimestamp(1476107241, timezone.utc)
         ))
 
         post.assert_called_with(

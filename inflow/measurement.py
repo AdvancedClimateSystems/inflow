@@ -5,9 +5,14 @@ from datetime import datetime
 
 from .utils import to_comma_separated_string, escape
 
+try:
+    from datetime import timezone
+except:
+    import pytz as timezone
+
 __all__ = ['Measurement']
 
-EPOCH = datetime(1970, 1, 1)
+EPOCH = datetime(1970, 1, 1).replace(tzinfo=timezone.utc)
 
 PRECISION_MULTIPLIERS = {
     'ns': 10**9,
@@ -52,9 +57,9 @@ class Measurement:
         self.tags = tags
 
         if timestamp is None:
-            self.timestamp = datetime.now()
+            self.timestamp = datetime.now(tz=timezone.utc)
         elif isinstance(timestamp, six.integer_types):
-            self.timestamp = datetime.fromtimestamp(timestamp)
+            self.timestamp = datetime.fromtimestamp(timestamp, timezone.utc)
         else:
             self.timestamp = timestamp
 
