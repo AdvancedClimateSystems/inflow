@@ -358,12 +358,12 @@ class TestQuery:
                     "name": "temperatures",
                     "values": [
                         {
-                            "time": "2016-01-01T00:01:00Z",
+                            "timestamp": "2016-01-01T00:01:00Z",
                             "value": 20.1,
                             "location": "groningen"
                         },
                         {
-                            "time": "2016-01-01T00:02:00Z",
+                            "timestamp": "2016-01-01T00:02:00Z",
                             "value": 23.0,
                             "location": "groningen"
                         }
@@ -374,7 +374,7 @@ class TestQuery:
         rv = client.query('SELECT * FROM "temperatures"')
         assert rv[0]['name'] == 'temperatures'
         assert rv[0]['values'][0] == {
-            "time": "2016-01-01T00:01:00Z",
+            "timestamp": "2016-01-01T00:01:00Z",
             "value": 20.1,
             "location": "groningen"
         }

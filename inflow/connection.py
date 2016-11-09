@@ -50,6 +50,12 @@ def parse_query_response(response):
             values=[]
         )
 
+        try:
+            i = s['columns'].index('time')
+            s['columns'][i] = 'timestamp'
+        except ValueError:
+            pass
+
         for v in s['values']:
             parsed['values'].append({
                 key: value
@@ -84,10 +90,10 @@ class Connection:
             raise ValueError('Should specify a database name.')
 
         self.uri = '{}://{}'.format(
+
             parsed.scheme,
             parsed.hostname
         )
-
         if parsed.port is not None:
             self.uri += ':{}'.format(parsed.port)
 
