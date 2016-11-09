@@ -23,13 +23,13 @@ the above example, which will return a list with the following structure:
             'name': 'temperature',
             'values': [
                 {
-                    'time': '2016-01-10T00:01:00Z',
                     'value': 21.0,
+                    'timestamp': '2016-01-10T00:01:00Z',
                     'location': 'groningen'
                 },
                 {
+                    'valuestamp': 23.0,
                     'time': '2016-01-10T00:02:00Z',
-                    'value': 23.0,
                     'location': 'groningen'
                 }
             ]
