@@ -17,7 +17,7 @@ setup(
     license='MPL',
     packages=['inflow'],
     install_requires=[
-        'requests>=2.11.0,<3.0'
+        'requests~=2.11',
         'six~=1.10.0',
         'pytz'
     ],
