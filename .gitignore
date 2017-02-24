@@ -1,5 +1,6 @@
 .env
 .py[ocd]
+*.pyc
 __pycache__
 build
 htmlcov
