@@ -2,7 +2,7 @@
 -e .
 
 mock==2.0.0
-flake8==3.0.4
-pytest==3.0.3
-pytest-cov==2.4.0
-Sphinx==1.4.8
+flake8==3.4.1
+pytest==3.2.2
+pytest-cov==2.5.1
+Sphinx==1.6.4
