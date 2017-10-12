@@ -52,4 +52,4 @@ class Session(WriteMixin):
         self.connection.write(self.measurements,
                               retention_policy=retention_policy)
         self.measurements = []
-        self.retention_policy = None
+        self.temporary_retention_policy = None
