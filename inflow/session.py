@@ -16,6 +16,10 @@ class Session(WriteMixin):
         """ The retention policy this session should write to. Overrides the
         connection's retention policy. """
 
+        self.temporary_retention_policy = None
+        """ The retention policy this session should commit the measurements to.
+        Clears on commit. """
+
         self.measurements = []
         """ Contains all uncommitted measurements. """
 
@@ -26,6 +30,10 @@ class Session(WriteMixin):
         self.commit()
 
     def write_func(self, measurement, **kwargs):
+        self.temporary_retention_policy = kwargs.get('retention_policy', None)
+        if 'retention_policy' in kwargs:
+            del kwargs['retention_policy']
+
         if type(measurement) is list:
             self.measurements.extend(measurement)
         else:
@@ -37,6 +45,11 @@ class Session(WriteMixin):
 
     def commit(self):
         """ Write out all cached measurements at once. """
+        retention_policy = self.retention_policy
+        if self.temporary_retention_policy is not None:
+            retention_policy = self.temporary_retention_policy
+
         self.connection.write(self.measurements,
-                              retention_policy=self.retention_policy)
+                              retention_policy=retention_policy)
         self.measurements = []
+        self.temporary_retention_policy = None
