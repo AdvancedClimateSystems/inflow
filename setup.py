@@ -8,7 +8,7 @@ long_description = open(os.path.join(cwd, 'README.rst'), 'r').read()
 
 setup(
     name='inflow',
-    version='0.2.2',
+    version='0.2.3',
     author='Jaap Broekhuizen',
     author_email='broekhuizen@baopt.nl',
     description='A simple InfluxDB client library.',
@@ -18,7 +18,7 @@ setup(
     packages=['inflow'],
     install_requires=[
         'requests~=2.11',
-        'six~=1.11.0',
+        'six~=1.11',
         'pytz'
     ],
     classifiers=[
