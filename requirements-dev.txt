@@ -1,4 +1,4 @@
---use-wheel
+--only-binary=:all:
 -e .
 
 mock==2.0.0

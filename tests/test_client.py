@@ -18,7 +18,7 @@ except:
 
 @pytest.fixture
 def client():
-    return Client('https://user:pass@localhost:8086/testdb')
+    return Client('https://user:pass@localhost:8086/testdb', timeout=1)
 
 
 @pytest.fixture
@@ -76,27 +76,30 @@ class TestWrite:
         post.assert_called_with(
             'https://localhost:8086/write?precision=s&db=testdb',
             auth=('user', 'pass'),
-            data='temperature value=21.3 1476107241'
+            data='temperature value=21.3 1476107241',
+            timeout=1
         )
 
     def test_explicit_retention_policy(self, post):
         client = Client('https://user:pass@localhost:8086/testdb',
-                        retention_policy='rp_four_weeks')
+                        retention_policy='rp_four_weeks', timeout=1)
         client.write('temperature', value=21.3, timestamp=1476107241)
         post.assert_called_with(
             'https://localhost:8086/write?precision=s&db=testdb&rp=rp_four_weeks',
             auth=('user', 'pass'),
-            data='temperature value=21.3 1476107241'
+            data='temperature value=21.3 1476107241',
+            timeout=1
         )
 
     def test_retention_policy_on_write_call(self, post):
-        client = Client('https://user:pass@localhost:8086/testdb')
+        client = Client('https://user:pass@localhost:8086/testdb', timeout=1)
         client.write('temperature', value=21.3, timestamp=1476107241,
                      retention_policy='rp_four_weeks')
         post.assert_called_with(
             'https://localhost:8086/write?precision=s&db=testdb&rp=rp_four_weeks',
             auth=('user', 'pass'),
-            data='temperature value=21.3 1476107241'
+            data='temperature value=21.3 1476107241',
+            timeout=1
         )
 
     def test_sorted_tags(self, client, post):
@@ -106,7 +109,8 @@ class TestWrite:
         post.assert_called_with(
             'https://localhost:8086/write?precision=s&db=testdb',
             auth=('user', 'pass'),
-            data='temperature,a=tag,b=tag value=21.3 1476107241'
+            data='temperature,a=tag,b=tag value=21.3 1476107241',
+            timeout=1
         )
 
     def test_escaped_tags(self, client, post):
@@ -116,7 +120,8 @@ class TestWrite:
         post.assert_called_with(
             'https://localhost:8086/write?precision=s&db=testdb',
             auth=('user', 'pass'),
-            data='temperature,a\\,\\=b\\ =a\\,\\=b\\  value=21.3 1476107241'
+            data='temperature,a\\,\\=b\\ =a\\,\\=b\\  value=21.3 1476107241',
+            timeout=1
         )
 
     def test_escaped_measurements(self, client, post):
@@ -125,7 +130,8 @@ class TestWrite:
         post.assert_called_with(
             'https://localhost:8086/write?precision=s&db=testdb',
             auth=('user', 'pass'),
-            data='temp\\ er\\,ature value=21.3 1476107241'
+            data='temp\\ er\\,ature value=21.3 1476107241',
+            timeout=1
         )
 
     def test_escaped_string_values(self, client, post):
@@ -135,7 +141,8 @@ class TestWrite:
         post.assert_called_with(
             'https://localhost:8086/write?precision=s&db=testdb',
             auth=('user', 'pass'),
-            data='temperature value="well, a pretty nice \\"temperature\\"" 1476107241'
+            data='temperature value="well, a pretty nice \\"temperature\\"" 1476107241',
+            timeout=1
         )
 
     def test_measurement_instance(self, client, post):
@@ -148,7 +155,8 @@ class TestWrite:
         post.assert_called_with(
             'https://localhost:8086/write?precision=s&db=testdb',
             auth=('user', 'pass'),
-            data='temperature value=21.3 1476107241'
+            data='temperature value=21.3 1476107241',
+            timeout=1
         )
 
     def test_measurement_no_timestamp(self):
@@ -169,7 +177,8 @@ class TestWrite:
         post.assert_called_with(
             'https://localhost:8086/write?precision=s&db=testdb',
             auth=('user', 'pass'),
-            data='temperature value=21.3 1476107241'
+            data='temperature value=21.3 1476107241',
+            timeout=1
         )
 
     def test_measurement_list(self, client, post):
@@ -190,7 +199,8 @@ class TestWrite:
             'https://localhost:8086/write?precision=s&db=testdb',
             auth=('user', 'pass'),
             data='temperature value=32.1 1476107241\n'
-                 'temperature value=21.9 1476107319'
+                 'temperature value=21.9 1476107319',
+            timeout=1
         )
 
     def test_measurement_template(self, client, post):
@@ -205,7 +215,8 @@ class TestWrite:
             'https://localhost:8086/write?precision=s&db=testdb',
             auth=('user', 'pass'),
             data='temperature value=21.3 1476107241\n'
-                 'temperature value=21.9 1476107319'
+                 'temperature value=21.9 1476107319',
+            timeout=1
         )
 
     def test_measurement_bad_input(self, client):
@@ -246,7 +257,8 @@ class TestSession:
             'https://localhost:8086/write?precision=s&db=testdb',
             auth=('user', 'pass'),
             data='temperature value=23.1 1475848864\n'
-                 'temperature value=25.0 1475849823'
+                 'temperature value=25.0 1475849823',
+            timeout=1
         )
 
     def test_session_as_context_manager(self, client, post):
@@ -258,7 +270,8 @@ class TestSession:
             'https://localhost:8086/write?precision=s&db=testdb',
             auth=('user', 'pass'),
             data='temperature value=23.1 1475848864\n'
-                 'temperature value=25.0 1475849823'
+                 'temperature value=25.0 1475849823',
+            timeout=1
         )
 
     def test_session_autocommit_every(self, client, post):
@@ -281,7 +294,8 @@ class TestSession:
                  'temperature value=25.0 1475849823\n'
                  'temperature value=22.9 1475849825\n'
                  'temperature value=28.2 1475849912\n'
-                 'temperature value=25.1 1475849999'
+                 'temperature value=25.1 1475849999',
+            timeout=1
         )
 
     def test_session_autocommit_every_list(self, client, post):
@@ -306,7 +320,8 @@ class TestSession:
                  'temperature value=22.9 1475849825\n'
                  'temperature value=28.2 1475849912\n'
                  'temperature value=25.1 1475849999\n'
-                 'temperature value=29.3 1475859999'
+                 'temperature value=29.3 1475859999',
+            timeout=1
         )
 
 

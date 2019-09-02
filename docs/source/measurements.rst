@@ -84,3 +84,16 @@ You can also specify the retention policy when calling into ``write``:
 
 .. literalinclude:: ../../examples/single_write_retention_policy.py
     :language: python
+
+Timeouts
+--------
+
+You can specify for how many seconds Inflow will wait before a request to
+InfluxDB times out:
+
+.. literalinclude:: ../../examples/timeout.py
+    :language: python
+
+.. note:: Inflow does not use a timeout by default. Make sure one is configured
+          in production code; not doing so can cause a program to hang
+          indefinitely.
