@@ -74,7 +74,7 @@ def get_error(response):
 class Connection:
     """ Represents a connection to an InfluxDB instance. """
 
-    def __init__(self, uri, precision='s', retention_policy=None):
+    def __init__(self, uri, precision='s', retention_policy=None, timeout=None):
         parsed = urlparse(uri)
 
         if parsed.hostname is None or\
@@ -105,6 +105,7 @@ class Connection:
 
         self.precision = precision
         self.retention_policy = retention_policy
+        self.timeout = timeout
 
     def get_write_url(self, retention_policy=None):
         """ Returns the url needed to write measurements to InfluxDB. """
@@ -146,7 +147,7 @@ class Connection:
             data = measurement.to_line(self.precision)
 
         rv = post(self.get_write_url(retention_policy), auth=self.auth,
-                  data=data)
+                  data=data, timeout=self.timeout)
 
         if rv.status_code == 400 or rv.status_code == 500:
             raise WriteFailedException(get_error(rv))
@@ -160,7 +161,8 @@ class Connection:
     def query(self, query, epoch=None):
         """ Execute a query on InfluxDB. """
         method = get_method(query)
-        rv = method(self.get_query_url(query, epoch), auth=self.auth)
+        rv = method(self.get_query_url(query, epoch), auth=self.auth,
+                    timeout=self.timeout)
 
         if rv.status_code == 400:
             raise QueryFailedException(get_error(rv))
