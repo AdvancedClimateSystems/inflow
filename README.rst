@@ -29,21 +29,17 @@ Example
 You can write measurements in a few different ways, but writing a single
 "temperature" measurement is as simple as:
 
-.. code:: python
+`from inflow import Client
+client = Client('http://username:pass@localhost:8086/databasename')
+client.write('temperature', value=21.3)`
 
-    from inflow import Client
-    client = Client('http://username:pass@localhost:8086/databasename')
-    client.write('temperature', value=21.3)
-
-For more examples and docs on how to use the client, go to :ref:`measurements`
-and :ref:`querying`.
+For more examples and docs on how to use the client, refer to the Measurements
+and Querying chapters in the documentation.
 
 Installing
 ----------
 
-.. code::
-
-    $ pip install inflow
+`$ pip install inflow`
 
 License
 -------
