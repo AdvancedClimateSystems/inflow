@@ -40,8 +40,11 @@ def get_method(query):
 
 def parse_query_response(response):
     """ Parses the query response and returns a list of response objects. """
-    retval = []
     data = response.json()
+    if 'results' not in data:
+        return []
+
+    retval = []
     series = data['results'][0].get('series', [])
 
     for s in series:
