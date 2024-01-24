@@ -70,10 +70,6 @@ def parse_query_response(response):
     return retval
 
 
-def get_error(response):
-    return response.json().get('error', None)
-
-
 class Connection:
     """ Represents a connection to an InfluxDB instance. """
 
@@ -153,13 +149,13 @@ class Connection:
                   data=data, timeout=self.timeout)
 
         if rv.status_code == 400 or rv.status_code == 500:
-            raise WriteFailedException(get_error(rv))
+            raise WriteFailedException(rv.json())
         elif rv.status_code == 401:
-            raise UnauthorizedException(get_error(rv))
+            raise UnauthorizedException(rv.json())
         elif rv.status_code == 403:
-            raise ForbiddenException(get_error(rv))
+            raise ForbiddenException(rv.json())
         elif rv.status_code == 404:
-            raise DatabaseNotFoundException(get_error(rv))
+            raise DatabaseNotFoundException(rv.json())
 
     def query(self, query, epoch=None):
         """ Execute a query on InfluxDB. """
@@ -168,10 +164,10 @@ class Connection:
                     timeout=self.timeout)
 
         if rv.status_code == 400:
-            raise QueryFailedException(get_error(rv))
+            raise QueryFailedException(rv.json())
         elif rv.status_code == 401:
-            raise UnauthorizedException(get_error(rv))
+            raise UnauthorizedException(rv.json())
         elif rv.status_code == 403:
-            raise ForbiddenException(get_error(rv))
+            raise ForbiddenException(rv.json())
 
         return parse_query_response(rv)
