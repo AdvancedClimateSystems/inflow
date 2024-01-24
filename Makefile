@@ -4,6 +4,8 @@ test:
 doc:
 	python setup.py build_sphinx
 
-upload:
+build:
 	python setup.py sdist bdist_wheel
+
+upload: build
 	python -m twine upload dist/*
