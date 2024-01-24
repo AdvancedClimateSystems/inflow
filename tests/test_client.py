@@ -455,5 +455,7 @@ class TestQuery:
     def test_exception(self, client, status_code, exception, get,
                        get_mock_response):
         get_mock_response.status_code = status_code
-        with pytest.raises(exception):
+        with pytest.raises(exception) as exc:
             client.query('SELECT * FROM measurements')
+
+        assert exc.value.message == {"error": "some error"}
