@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
 from inflow import Client
-client = Client('http://username:pass@localhost:8086/databasename')
-client.write('temperature', value=21.3, retention_policy='rp_four_weeks')
+
+client = Client("http://username:pass@localhost:8086", db="databasename")
+client.write("temperature", value=21.3, retention_policy="rp_four_weeks")
