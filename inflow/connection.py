@@ -1,18 +1,22 @@
 from requests import post, get
 from six.moves.urllib.parse import urlparse, quote_plus
 
-from .exceptions import (QueryFailedException, WriteFailedException,
-                         DatabaseNotFoundException, UnauthorizedException,
-                         ForbiddenException)
+from .exceptions import (
+    QueryFailedException,
+    WriteFailedException,
+    DatabaseNotFoundException,
+    UnauthorizedException,
+    ForbiddenException,
+)
 
-__all__ = ['Connection']
+__all__ = ["Connection"]
 
 # All these types of queries should issue a GET request.
-GET_QUERIES = ['SELECT', 'SHOW']
+GET_QUERIES = ["SELECT", "SHOW"]
 
 
 def get_method(query):
-    """ Determines which method should be used to execute this query.
+    """Determines which method should be used to execute this query.
 
     These query types should be issues using a GET:
 
@@ -30,7 +34,7 @@ def get_method(query):
       * KILL
       * REVOKE
     """
-    if 'INTO' not in query:
+    if "INTO" not in query:
         for word in GET_QUERIES:
             if word in query:
                 return get
@@ -39,31 +43,25 @@ def get_method(query):
 
 
 def parse_query_response(response):
-    """ Parses the query response and returns a list of response objects. """
+    """Parses the query response and returns a list of response objects."""
     data = response.json()
-    if 'results' not in data:
+    if "results" not in data:
         return []
 
     retval = []
-    series = data['results'][0].get('series', [])
+    series = data["results"][0].get("series", [])
 
     for s in series:
-        parsed = dict(
-            name=s['name'],
-            values=[]
-        )
+        parsed = dict(name=s["name"], values=[])
 
         try:
-            i = s['columns'].index('time')
-            s['columns'][i] = 'timestamp'
+            i = s["columns"].index("time")
+            s["columns"][i] = "timestamp"
         except ValueError:
             pass
 
-        for v in s['values']:
-            parsed['values'].append({
-                key: value
-                for key, value in zip(s['columns'], v)
-            })
+        for v in s["values"]:
+            parsed["values"].append({key: value for key, value in zip(s["columns"], v)})
 
         retval.append(parsed)
 
@@ -71,82 +69,80 @@ def parse_query_response(response):
 
 
 class Connection:
-    """ Represents a connection to an InfluxDB instance. """
+    """Represents a connection to an InfluxDB instance."""
 
-    def __init__(self, uri, precision='s', retention_policy=None, timeout=None):
+    def __init__(
+        self, uri, db=None, precision="s", retention_policy=None, timeout=None
+    ):
         parsed = urlparse(uri)
 
-        if parsed.hostname is None or\
-                parsed.scheme is None:
-            raise ValueError('Given URI is invalid.')
+        if parsed.hostname is None or parsed.scheme is None:
+            raise ValueError("Given URI is invalid.")
 
-        if parsed.scheme not in ['http', 'https']:
-            raise ValueError('Given scheme is not supported, should be '
-                             'either http or https, while you specified '
-                             '{}'.format(parsed.scheme))
+        if parsed.scheme not in ["http", "https"]:
+            raise ValueError(
+                "Given scheme is not supported, should be "
+                "either http or https, while you specified "
+                "{}".format(parsed.scheme)
+            )
 
-        if parsed.path == '' or parsed.path == '/':
-            raise ValueError('Should specify a database name.')
-
-        self.uri = '{}://{}'.format(
-
-            parsed.scheme,
-            parsed.hostname
-        )
+        self.uri = "{}://{}".format(parsed.scheme, parsed.hostname)
         if parsed.port is not None:
-            self.uri += ':{}'.format(parsed.port)
+            self.uri += ":{}".format(parsed.port)
 
-        self.auth = ((parsed.username, parsed.password)
-                     if parsed.username is not None
-                     else None)
+        self.uri += parsed.path
 
-        self.db = parsed.path[1:]
+        self.auth = (
+            (parsed.username, parsed.password) if parsed.username is not None else None
+        )
 
         self.precision = precision
+        self.db = db
         self.retention_policy = retention_policy
         self.timeout = timeout
 
-    def get_write_url(self, retention_policy=None):
-        """ Returns the url needed to write measurements to InfluxDB. """
-        url = '{}/write?precision={}&db={}'.format(
-            self.uri,
-            self.precision,
-            self.db
+    def get_write_url(self, db=None, retention_policy=None):
+        """Returns the url needed to write measurements to InfluxDB."""
+        url = "{}/write?precision={}&db={}".format(
+            self.uri, self.precision, db if db is not None else self.db
         )
 
         if retention_policy is not None:
-            url = '{}&rp={}'.format(url, retention_policy)
+            url = "{}&rp={}".format(url, retention_policy)
         elif self.retention_policy is not None:
-            url = '{}&rp={}'.format(url, self.retention_policy)
+            url = "{}&rp={}".format(url, self.retention_policy)
 
         return url
 
-    def get_query_url(self, query, epoch):
-        """ Returns the url needed to query measurements from InfluxDB.  """
-        url = '{}/query?db={}&q={}'.format(
-            self.uri,
-            self.db,
-            quote_plus(query)
+    def get_query_url(self, query, epoch, db=None):
+        """Returns the url needed to query measurements from InfluxDB."""
+        url = "{}/query?db={}&q={}".format(
+            self.uri, db if db is None else self.db, quote_plus(query)
         )
 
         if epoch is not None:
-            if epoch not in ['h', 'm', 's', 'ms', 'u', 'ns']:
-                raise ValueError('Invalid epoch provided, must be one of '
-                                 'h, m, s, ms, u or ns.')
+            if epoch not in ["h", "m", "s", "ms", "u", "ns"]:
+                raise ValueError(
+                    "Invalid epoch provided, must be one of " "h, m, s, ms, u or ns."
+                )
 
-            url = '{}&epoch={}'.format(url, epoch)
+            url = "{}&epoch={}".format(url, epoch)
 
         return url
 
-    def write(self, measurement, retention_policy=None):
-        """ Write a single measurement to the InfluxDB API. """
+    def write(self, measurement, db=None, retention_policy=None):
+        """Write a single measurement to the InfluxDB API."""
         if type(measurement) is list:
-            data = '\n'.join([m.to_line(self.precision) for m in measurement])
+            data = "\n".join([m.to_line(self.precision) for m in measurement])
         else:
             data = measurement.to_line(self.precision)
 
-        rv = post(self.get_write_url(retention_policy), auth=self.auth,
-                  data=data, timeout=self.timeout)
+        rv = post(
+            self.get_write_url(db, retention_policy),
+            auth=self.auth,
+            data=data,
+            timeout=self.timeout,
+        )
 
         if rv.status_code == 400 or rv.status_code == 500:
             raise WriteFailedException(rv.json())
@@ -157,11 +153,12 @@ class Connection:
         elif rv.status_code == 404:
             raise DatabaseNotFoundException(rv.json())
 
-    def query(self, query, epoch=None):
-        """ Execute a query on InfluxDB. """
+    def query(self, query, epoch=None, db=None):
+        """Execute a query on InfluxDB."""
         method = get_method(query)
-        rv = method(self.get_query_url(query, epoch), auth=self.auth,
-                    timeout=self.timeout)
+        rv = method(
+            self.get_query_url(query, epoch, db), auth=self.auth, timeout=self.timeout
+        )
 
         if rv.status_code == 400:
             raise QueryFailedException(rv.json())

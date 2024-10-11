@@ -2,7 +2,6 @@
 
 from inflow import Client
 
-client = Client('http://username:pass@localhost:8086/databasename',
-                timeout=0.01)
+client = Client("http://username:pass@localhost:8086", db="databasename", timeout=0.01)
 
-client.write('temperature', value=21.3)
+client.write("temperature", value=21.3)

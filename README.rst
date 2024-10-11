@@ -32,7 +32,7 @@ You can write measurements in a few different ways, but writing a single
 .. code:: python
 
     from inflow import Client
-    client = Client('http://username:pass@localhost:8086/databasename')
+    client = Client('http://username:pass@localhost:8086', db='databasename')
     client.write('temperature', value=21.3)
 
 For more examples and docs on how to use the client, refer to the Measurements

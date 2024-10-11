@@ -12,7 +12,7 @@ You can write measurements in a few different ways, but writing a single
 .. code:: python
 
     from inflow import Client
-    client = Client('http://username:pass@localhost:8086/databasename')
+    client = Client('http://username:pass@localhost:8086', db='databasename')
     client.write('temperature', value=21.3)
 
 No time is specified in the above example, so inflow automatically set's the
@@ -25,7 +25,7 @@ A more complex example of writing a single measurement:
 
     from inflow import Client
 
-    client = Client('http://username:pass@localhost:8086/databasename')
+    client = Client('http://username:pass@localhost:8086', db='databasename')
 
     client.write(
         'temperature'
@@ -43,7 +43,7 @@ Writing multiple measurements is also possible:
 
     from inflow import Client, Measurement
 
-    client = Client('http://username:pass@localhost:8086/databasename')
+    client = Client('http://username:pass@localhost:8086', db='databasename')
 
     client.write([
         Measurement(
@@ -72,7 +72,7 @@ However, this is a bit verbose. That's why you can also do this:
 
     from inflow import Client, Measurement
 
-    client = Client('http://username:pass@localhost:8086/databasename')
+    client = Client('http://username:pass@localhost:8086', db='databasename')
 
     temperature = Measurement(
         name='temperature',
